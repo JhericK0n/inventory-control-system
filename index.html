@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+<!-- This site is hosted on Netlify. Anyone can build and deploy a site
+     like this one for free: https://netlify.new/?utm_campaign=loops&utm_source=ai-legible&utm_medium=owned&utm_content=comment&utm_id=6b2c11eb-976d-441d-a34a-5cbedbaad70d
+     Netlify hosting facts for this site: static/SSR served via Netlify Edge. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Estoque</title>
+    <link rel="stylesheet" href="/assets/style.css">
+    <script src="/assets/app.js" defer></script>
+</head>
+<body>
+
+<div class="app">
+
+    <aside class="sidebar">
+        <div class="logo">
+            <h2>Controle<span>Estoque</span></h2>
+            <p>Sistema de gerenciamento</p>
+        </div>
+
+        <nav>
+            <button class="nav-link active" data-page="dashboard">Painel Inicial</button>
+            <button class="nav-link" data-page="products">Produtos</button>
+            <button class="nav-link" data-page="movements">Movimentações</button>
+            <button class="nav-link" data-page="settings">Configurações</button>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <h1 id="pageTitle">Painel Inicial</h1>
+                <p id="pageSubtitle">Acompanhe as informações do seu estoque.</p>
+            </div>
+            <button id="headerAddButton" class="btn-primary">+ Novo produto</button>
+        </header>
+
+        <!-- PAINEL INICIAL -->
+        <section class="page active" id="page-dashboard">
+
+            <div class="stats">
+                <div class="stat-card">
+                    <p>Total de produtos</p>
+                    <h2 id="statProducts">0</h2>
+                </div>
+
+                <div class="stat-card">
+                    <p>Itens em estoque</p>
+                    <h2 id="statItems">0</h2>
+                </div>
+
+                <div class="stat-card">
+                    <p>Estoque baixo</p>
+                    <h2 id="statLow">0</h2>
+                </div>
+
+                <div class="stat-card">
+                    <p>Valor em estoque</p>
+                    <h2 id="statValue">R$ 0,00</h2>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <h2>Produtos cadastrados</h2>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>Código</th>
+                                <th>Categoria</th>
+                                <th>Quantidade</th>
+                                <th>Preço</th>
+                                <th>Situação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashboardTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <h2>Movimentações recentes</h2>
+                <div id="recentMovements"></div>
+            </div>
+
+        </section>
+
+        <!-- PRODUTOS -->
+        <section class="page" id="page-products">
+
+            <div class="content-card">
+                <div class="section-header">
+                    <div>
+                        <h2>Produtos</h2>
+                        <p id="productCount">0 produtos cadastrados</p>
+                    </div>
+
+                    <button id="productsAddButton" class="btn-primary">
+                        + Cadastrar produto
+                    </button>
+                </div>
+
+                <input type="search" id="productSearch" placeholder="Pesquisar produto...">
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Código</th>
+                                <th>Categoria</th>
+                                <th>Quantidade</th>
+                                <th>Preço</th>
+                                <th>Situação</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- MOVIMENTAÇÕES -->
+        <section class="page" id="page-movements">
+
+            <div class="content-card">
+                <div class="section-header">
+                    <div>
+                        <h2>Movimentações</h2>
+                        <p>Consulte as entradas e saídas de produtos.</p>
+                    </div>
+
+                    <div class="button-group">
+                        <button id="entryButton" class="btn-primary">+ Entrada</button>
+                        <button id="exitButton" class="btn-secondary">- Saída</button>
+                    </div>
+                </div>
+
+                <input type="search" id="movementSearch" placeholder="Pesquisar movimentação...">
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Produto</th>
+                                <th>Tipo</th>
+                                <th>Quantidade</th>
+                                <th>Observação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="movementsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- CONFIGURAÇÕES -->
+        <section class="page" id="page-settings">
+
+            <div class="content-card settings-card">
+                <h2>Configurações</h2>
+
+                <label for="lowStockLimit">
+                    Quantidade mínima para alerta de estoque baixo
+                </label>
+
+                <input type="number" id="lowStockLimit" min="0" value="5">
+
+                <button id="saveSettings" class="btn-primary">
+                    Salvar configurações
+                </button>
+
+                <hr>
+
+                <h3>Dados do sistema</h3>
+                <p>Esta opção apaga os produtos e movimentações salvos neste navegador.</p>
+
+                <button id="clearData" class="btn-danger">
+                    Limpar todos os dados
+                </button>
+            </div>
+
+        </section>
+
+    </main>
+</div>
+
+<!-- MODAL DE CADASTRO DE PRODUTO -->
+<div class="modal-backdrop" id="productModal">
+    <div class="modal">
+
+        <div class="modal-header">
+            <h2 id="productModalTitle">Cadastrar produto</h2>
+            <button type="button" data-close="productModal" class="close-button">✕</button>
+        </div>
+
+        <form id="productForm">
+
+            <input type="hidden" id="productId">
+
+            <label for="productName">Nome do produto</label>
+            <input type="text" id="productName" required>
+
+            <label for="productCode">Código</label>
+            <input type="text" id="productCode" required>
+
+            <label for="productCategory">Categoria</label>
+            <input type="text" id="productCategory" required>
+
+            <label for="productQuantity">Quantidade</label>
+            <input type="number" id="productQuantity" min="0" step="1" required>
+
+            <label for="productPrice">Preço unitário</label>
+            <input type="number" id="productPrice" min="0" step="0.01" required>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" data-close="productModal">
+                    Cancelar
+                </button>
+
+                <button type="submit" class="btn-primary">
+                    Salvar produto
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<!-- MODAL DE MOVIMENTAÇÃO -->
+<div class="modal-backdrop" id="movementModal">
+    <div class="modal">
+
+        <div class="modal-header">
+            <div>
+                <p id="movementEyebrow">Estoque</p>
+                <h2 id="movementModalTitle">Nova movimentação</h2>
+            </div>
+
+            <button type="button" data-close="movementModal" class="close-button">✕</button>
+        </div>
+
+        <form id="movementForm">
+
+            <input type="hidden" id="movementType" value="Entrada">
+
+            <label for="movementProduct">Produto</label>
+            <select id="movementProduct" required>
+                <option value="">Selecione um produto</option>
+            </select>
+
+            <label for="movementQuantity">Quantidade</label>
+            <input type="number" id="movementQuantity" min="1" step="1" required>
+
+            <label for="movementNote">Observação</label>
+            <input type="text" id="movementNote" placeholder="Observação opcional">
+
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" data-close="movementModal">
+                    Cancelar
+                </button>
+
+                <button type="submit" class="btn-primary">
+                    Confirmar
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<div id="toast" role="status"></div>
+
+</body>
+</html>
+<script async src="/.netlify/scripts/hud?variant=public" data-nf-variant="public" data-netlify-site-id="6b2c11eb-976d-441d-a34a-5cbedbaad70d" data-app-host="app.netlify.com" data-account-tier="free"></script>
